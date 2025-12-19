@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Bu An Saklandı</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050406;
+  --soft:#b8b8b8;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:#fff;
+  overflow:hidden;
+  font-family:'Inter',sans-serif;
+}
+
+/* TAP TO START */
+#tapStart{
+  position:fixed;
+  inset:0;
+  background:#050406;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+#tapStart span{
+  font-family:'Playfair Display',serif;
+  font-size:1.9rem;
+  opacity:.8;
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:.4}
+  50%{opacity:1}
+}
+
+/* BACKGROUND */
+#veil{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle at center,
+    rgba(255,255,255,0.08),
+    rgba(0,0,0,0.9) 70%);
+  z-index:1;
+}
+
+/* CANVAS */
+#fireworks{
+  position:fixed;
+  inset:0;
+  z-index:2;
+}
+
+/* TIMER */
+#timerWrap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:5;
+}
+
+#timer{
+  font-size:4.5rem;
+  font-weight:300;
+  letter-spacing:.12em;
+  animation:pulse 1s infinite;
+}
+
+/* PAUSE */
+#pause{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;
+  line-height:1.5;
+  opacity:0;
+  z-index:6;
+  transition:opacity 2s ease;
+}
+
+/* LETTER */
+#letter{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:7;
+  opacity:0;
+  transition:opacity 3s ease;
+}
+
+.paper{
+  width:75%;
+  max-width:600px;
+  padding:50px;
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,0.08);
+  font-family:'Playfair Display',serif;
+  font-size:1.35rem;
+  line-height:1.9;
+  color:#eee;
+}
+
+#typeText::after{
+  content:'|';
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%,50%,100%{opacity:1}
+  25%,75%{opacity:0}
+}
+
+/* NOTE */
+#note{
+  position:absolute;
+  top:30px;
+  width:100%;
+  text-align:center;
+  font-size:.8rem;
+  color:var(--soft);
+  opacity:0;
+  transition:opacity 3s ease;
+  z-index:8;
+}
+
+/* RELATION */
+#relation{
+  position:fixed;
+  left:50%;
+  bottom:30px;
+  transform:translate(-50%,20px);
+  font-size:.75rem;
+  color:var(--soft);
+  line-height:1.6;
+  text-align:center;
+  opacity:0;
+  transition:opacity 3s ease, transform 3s ease;
+  z-index:9;
+}
+</style>
+</head>
+
+<body>
+
+<div id="tapStart"><span>Hazır olduğunda dokun</span></div>
+
+<div id="veil"></div>
+<canvas id="fireworks"></canvas>
+
+<section id="timerWrap">
+  <div id="timer">00:10</div>
+</section>
+
+<section id="pause">
+  <div>Zaman bitiyor.</div>
+  <div style="font-size:1.2rem; opacity:.7; margin-top:20px;">
+    An başlıyor.
+  </div>
+</section>
+
+<section id="letter">
+  <div class="paper">
+    <div id="typeText"></div>
+    <div style="margin-top:40px; font-size:.9rem; opacity:.6; text-align:right;">
+      seni çok seven Mustafa
+    </div>
+  </div>
+</section>
+
+<div id="note">Bu an saklandı.</div>
+<div id="relation"></div>
+
+<script>
+/* ========= CANVAS ========= */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = innerWidth * dpr;
+  canvas.height = innerHeight * dpr;
+  canvas.style.width = innerWidth+"px";
+  canvas.style.height = innerHeight+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+resizeCanvas();
+addEventListener("resize", resizeCanvas);
+
+let rockets=[], particles=[], fireworksActive=false;
+
+function launchRocket(){
+  rockets.push({x:Math.random()*canvas.width,y:canvas.height,vy:-10});
+}
+
+function explode(x,y){
+  const colors=["#ff004c","#ffd700","#ffffff","#9d4edd","#00ffd5"];
+  for(let i=0;i<90;i++){
+    particles.push({
+      x,y,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      life:100,
+      color:colors[Math.floor(Math.random()*colors.length)]
+    });
+  }
+}
+
+function animateFireworks(){
+  if(!fireworksActive) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  rockets.forEach((r,i)=>{
+    r.y+=r.vy;
+    ctx.fillStyle="#fff";
+    ctx.fillRect(r.x,r.y,3,3);
+    if(r.y<canvas.height*0.4){
+      explode(r.x,r.y);
+      rockets.splice(i,1);
+    }
+  });
+
+  particles.forEach((p,i)=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life--;
+    ctx.globalAlpha=p.life/100;
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,2,2);
+    if(p.life<=0) particles.splice(i,1);
+  });
+
+  ctx.globalAlpha=1;
+  requestAnimationFrame(animateFireworks);
+}
+
+/* ========= TIMER ========= */
+let remaining=10;
+const timer=document.getElementById("timer");
+const timerWrap=document.getElementById("timerWrap");
+const pause=document.getElementById("pause");
+const letter=document.getElementById("letter");
+const textEl=document.getElementById("typeText");
+const note=document.getElementById("note");
+
+const paragraph="Seninle geçen her an, sıradanlığın çok ötesinde bir anlam taşıyor. Bazı duygular anlatılmaz derler ya, işte sen tam olarak onlardansın. İyi ki varsın.";
+
+function startCountdown(){
+  const cd=setInterval(()=>{
+    if(remaining<0){clearInterval(cd);startPause();return;}
+    timer.innerText=`00:${String(remaining).padStart(2,"0")}`;
+    remaining--;
+  },1000);
+}
+
+function startPause(){
+  timerWrap.style.opacity=0;
+  setTimeout(()=>{
+    timerWrap.style.display="none";
+    pause.style.opacity=1;
+  },1500);
+  setTimeout(()=>{
+    pause.style.opacity=0;
+    showLetter();
+  },4500);
+}
+
+function showLetter(){
+  letter.style.opacity=1;
+  let i=0;
+  (function type(){
+    if(i<paragraph.length){
+      textEl.innerHTML+=paragraph[i++];
+      setTimeout(type,65);
+    }else finish();
+  })();
+}
+
+function finish(){
+  note.style.opacity=1;
+  fireworksActive=true;
+  animateFireworks();
+  for(let i=0;i<16;i++) setTimeout(launchRocket,i*400);
+  showRelation();
+}
+
+/* ========= RELATION ========= */
+const relation=document.getElementById("relation");
+const startDate=new Date(2024,11,30);
+
+function updateRelation(){
+  const diff=Date.now()-startDate;
+  const days=Math.floor(diff/(1000*60*60*24));
+  relation.innerHTML=`${Math.floor(days/365)} yıl ${Math.floor(days%365/30)} ay ${days%30} gün<br>Bu sayaç ömür boyu sayacak,<br>ben ise seni sevmeye devam edeceğim.`;
+}
+
+function showRelation(){
+  updateRelation();
+  setTimeout(()=>{
+    relation.style.opacity=1;
+    relation.style.transform="translate(-50%,0)";
+  },2000);
+}
+
+/* ========= TAP START ========= */
+document.getElementById("tapStart").addEventListener("click",()=>{
+  document.getElementById("tapStart").remove();
+  startCountdown();
+});
+</script>
+
+</body>
+</html>
