@@ -5,18 +5,12 @@
 <title>Bu An Saklandı</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#050406;
-  --soft:#b8b8b8;
-}
-*{box-sizing:border-box}
+:root{--bg:#050406;--soft:#b8b8b8;}
+*{box-sizing:border-box;}
 html,body{margin:0;width:100%;height:100%;background:var(--bg);color:#fff;overflow:hidden;font-family:'Inter',sans-serif;}
-#veil{position:fixed;inset:0;background:radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(0,0,0,0.9) 70%);z-index:1;}
-#fireworks{position:fixed;inset:0;z-index:2;}
 #timerWrap{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:5;}
 #timer{font-size:4.5rem;font-weight:300;letter-spacing:.12em;animation:pulse 1s infinite;}
 @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-#pause{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-family:'Playfair Display',serif;font-size:2.2rem;line-height:1.5;opacity:0;z-index:6;transition:opacity 2s ease;}
 #letter{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:7;opacity:0;transition:opacity 3s ease;}
 .paper{width:75%;max-width:600px;padding:60px;background:rgba(255,255,255,0.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.08);font-family:'Playfair Display',serif;font-size:1.4rem;line-height:1.9;color:#eee;}
 #typeText::after{content:'|';animation:blink 1s infinite;}
@@ -26,78 +20,49 @@ html,body{margin:0;width:100%;height:100%;background:var(--bg);color:#fff;overfl
 </style>
 </head>
 <body>
+
 <div id="veil"></div>
-<canvas id="fireworks"></canvas>
-
-<section id="timerWrap">
-  <div id="timer">00:00</div>
-</section>
-
-<section id="pause">
-  <div>Zaman bitiyor.</div>
-  <div style="font-size:1.2rem; opacity:.7; margin-top:20px;">An başlıyor.</div>
-</section>
-
-<section id="letter">
-  <div class="paper">
-    <div id="typeText"></div>
-  </div>
-</section>
-
+<section id="timerWrap"><div id="timer">00:10:00</div></section>
+<section id="letter"><div class="paper"><div id="typeText"></div></div></section>
 <div id="note">Bu an saklandı.</div>
-<div id="relation">Seni çok seven Mustafa</div>
+<div id="relation"></div>
 
 <script>
 window.onload = function(){
 
-/* ====== GERÇEK SAYAÇ ====== */
+const targetDate = new Date(2025,11,30,0,0,0).getTime();
 const timer = document.getElementById("timer");
 const timerWrap = document.getElementById("timerWrap");
 const pause = document.getElementById("pause");
 const letter = document.getElementById("letter");
 const textEl = document.getElementById("typeText");
 const note = document.getElementById("note");
-const relation = document.getElementById("relation");
 
 const paragraph = "Seninle geçen her an, sıradanlığın çok ötesinde bir anlam taşıyor. Bazı duygular anlatılmaz derler ya, işte sen tam olarak onlardansın. İyi ki varsın.";
 
-// Hedef tarih: 30 Aralık 2025 00:00
-const targetDate = new Date(2025,11,30,0,0,0);
-
-function updateCountdown(){
-  const now = new Date();
+function updateTimer(){
+  const now = new Date().getTime();
   const diff = targetDate - now;
-  if(diff <=0){
-    clearInterval(countdown);
-    startPause();
+
+  if(diff <= 0){
+    clearInterval(timerInterval);
+    showLetter();
     return;
   }
-  const d=Math.floor(diff/1000/60/60/24);
-  const h=Math.floor((diff/1000/60/60)%24);
-  const m=Math.floor((diff/1000/60)%60);
-  const s=Math.floor((diff/1000)%60);
-  timer.innerText = `${String(d).padStart(2,'0')}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-const countdown = setInterval(updateCountdown,1000);
-updateCountdown();
 
-/* ====== SCENES ====== */
-function startPause(){
-  timerWrap.style.opacity=0;
-  setTimeout(()=>{
-    timerWrap.style.display="none";
-    pause.style.opacity=1;
-  },1500);
+  const h = Math.floor(diff / (1000*60*60));
+  const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const s = Math.floor((diff % (1000*60)) / 1000);
 
-  setTimeout(()=>{
-    pause.style.opacity=0;
-    showLetter();
-  },3500);
+  timer.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
+
+const timerInterval = setInterval(updateTimer,1000);
+updateTimer();
 
 function showLetter(){
-  letter.style.opacity=1;
-  typeWriter();
+  timerWrap.style.opacity=0;
+  setTimeout(()=>{ timerWrap.style.display="none"; letter.style.opacity=1; typeWriter(); },1000);
 }
 
 let i=0;
@@ -111,94 +76,31 @@ function typeWriter(){
   }
 }
 
-/* ====== FIREWORKS ====== */
-const canvas = document.getElementById("fireworks");
-const ctx = canvas.getContext("2d");
-
-function resizeCanvas(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize',resizeCanvas);
-resizeCanvas();
-
-let rockets=[], particles=[];
-
-function launchRocket(){
-  rockets.push({
-    x: Math.random()*canvas.width,
-    y: canvas.height,
-    vy: -(8 + Math.random()*2)
-  });
-}
-
-function explode(x,y){
-  const colors=["#ff004c","#ffd700","#ffffff","#9d4edd","#00ffd5"];
-  for(let i=0;i<80;i++){
-    particles.push({
-      x,y,
-      vx:(Math.random()-0.5)*6,
-      vy:(Math.random()-0.5)*6,
-      life:100,
-      color:colors[Math.floor(Math.random()*colors.length)]
-    });
-  }
-}
-
-function animateFireworks(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  rockets.forEach((r,i)=>{
-    r.y += r.vy;
-    ctx.fillStyle="#ffffff";
-    ctx.fillRect(r.x,r.y,3,3);
-    if(r.y < canvas.height*0.4){
-      explode(r.x,r.y);
-      rockets.splice(i,1);
-    }
-  });
-
-  particles.forEach((p,i)=>{
-    p.x+=p.vx;
-    p.y+=p.vy;
-    p.vy+=0.04;
-    p.life--;
-    ctx.globalAlpha=p.life/100;
-    ctx.fillStyle=p.color;
-    ctx.fillRect(p.x,p.y,2,2);
-    if(p.life<=0) particles.splice(i,1);
-  });
-
-  requestAnimationFrame(animateFireworks);
-}
-
-/* ====== RELATION COUNTER ====== */
+/* RELATION COUNTER */
 const startDate = new Date(2024,11,30,0,0,0);
-
+const relation = document.getElementById("relation");
 function updateRelation(){
   const now = new Date();
   let y = now.getFullYear()-startDate.getFullYear();
   let m = now.getMonth()-startDate.getMonth();
   let d = now.getDate()-startDate.getDate();
-  if(d<0){m--;d+=30}
-  if(m<0){y--;m+=12}
+  if(d<0){ m--; d+=30; }
+  if(m<0){ y--; m+=12; }
   relation.innerHTML = `${y} yıl ${m} ay ${d} gün<br>Bu sayaç ömür boyu sayacak,<br>ben ise seni sevmeye devam edeceğim.`;
 }
-setInterval(updateRelation,60000);
-updateRelation();
 
-/* ====== FINISH ====== */
 function finish(){
   note.style.opacity=1;
-  for(let i=0;i<16;i++){
-    setTimeout(launchRocket, i*450);
-  }
-  animateFireworks();
-
+  updateRelation();
   setTimeout(()=>{
     relation.style.opacity=1;
     relation.style.transform="translate(-50%,0)";
-  },2000);
+  },1000);
 }
+
+setInterval(updateRelation,60000);
+
+} // window.onload
 </script>
 </body>
 </html>
