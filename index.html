@@ -9,143 +9,28 @@
   --bg:#050406;
   --soft:#b8b8b8;
 }
-
 *{box-sizing:border-box}
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:var(--bg);
-  color:#fff;
-  overflow:hidden;
-  font-family:'Inter',sans-serif;
-}
-
-/* BACKGROUND */
-#veil{
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(0,0,0,0.9) 70%);
-  z-index:1;
-}
-
-/* CANVAS */
-#fireworks{
-  position:fixed;
-  inset:0;
-  z-index:2;
-}
-
-/* TIMER */
-#timerWrap{
-  position:absolute;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:5;
-}
-
-#timer{
-  font-size:4.5rem;
-  font-weight:300;
-  letter-spacing:.12em;
-  animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-  0%,100%{opacity:.6}
-  50%{opacity:1}
-}
-
-/* PAUSE */
-#pause{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  font-family:'Playfair Display',serif;
-  font-size:2.2rem;
-  line-height:1.5;
-  opacity:0;
-  z-index:6;
-  transition:opacity 2s ease;
-}
-
-/* LETTER */
-#letter{
-  position:absolute;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:7;
-  opacity:0;
-  transition:opacity 3s ease;
-}
-
-.paper{
-  width:75%;
-  max-width:600px;
-  padding:60px;
-  background:rgba(255,255,255,0.04);
-  backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,0.08);
-  font-family:'Playfair Display',serif;
-  font-size:1.4rem;
-  line-height:1.9;
-  color:#eee;
-}
-
-#typeText::after{
-  content:'|';
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  0%,50%,100%{opacity:1}
-  25%,75%{opacity:0}
-}
-
-/* NOTE – TOP */
-#note{
-  position:absolute;
-  top:40px;
-  width:100%;
-  text-align:center;
-  font-size:.8rem;
-  color:var(--soft);
-  opacity:0;
-  transition:opacity 3s ease;
-  z-index:8;
-}
-
-/* RELATION COUNTER */
-#relation{
-  position:fixed;
-  left:50%;
-  bottom:30px;
-  transform:translate(-50%,20px);
-  font-size:.75rem;
-  color:var(--soft);
-  line-height:1.6;
-  text-align:center;
-  opacity:0;
-  transition:opacity 3s ease, transform 3s ease;
-  z-index:9;
-}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:#fff;overflow:hidden;font-family:'Inter',sans-serif;}
+#veil{position:fixed;inset:0;background:radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(0,0,0,0.9) 70%);z-index:1;}
+#fireworks{position:fixed;inset:0;z-index:2;}
+#timerWrap{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:5;}
+#timer{font-size:4.5rem;font-weight:300;letter-spacing:.12em;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+#pause{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-family:'Playfair Display',serif;font-size:2.2rem;line-height:1.5;opacity:0;z-index:6;transition:opacity 2s ease;}
+#letter{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:7;opacity:0;transition:opacity 3s ease;}
+.paper{width:75%;max-width:600px;padding:60px;background:rgba(255,255,255,0.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.08);font-family:'Playfair Display',serif;font-size:1.4rem;line-height:1.9;color:#eee;}
+#typeText::after{content:'|';animation:blink 1s infinite;}
+@keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:0}}
+#note{position:absolute;top:40px;width:100%;text-align:center;font-size:.8rem;color:var(--soft);opacity:0;transition:opacity 3s ease;z-index:8;}
+#relation{position:fixed;left:50%;bottom:30px;transform:translate(-50%,20px);font-size:.75rem;color:var(--soft);line-height:1.6;text-align:center;opacity:0;transition:opacity 3s ease, transform 3s ease;z-index:9;}
 </style>
 </head>
-
 <body>
 <div id="veil"></div>
 <canvas id="fireworks"></canvas>
 
 <section id="timerWrap">
-  <div id="timer">00:10</div>
+  <div id="timer">00:00</div>
 </section>
 
 <section id="pause">
@@ -165,8 +50,7 @@ html,body{
 <script>
 window.onload = function(){
 
-/* ========== TIMER ========== */
-let remaining = 10;
+/* ====== GERÇEK SAYAÇ ====== */
 const timer = document.getElementById("timer");
 const timerWrap = document.getElementById("timerWrap");
 const pause = document.getElementById("pause");
@@ -175,22 +59,29 @@ const textEl = document.getElementById("typeText");
 const note = document.getElementById("note");
 const relation = document.getElementById("relation");
 
-const paragraph =
-"Seninle geçen her an, sıradanlığın çok ötesinde bir anlam taşıyor. Bazı duygular anlatılmaz derler ya, işte sen tam olarak onlardansın. İyi ki varsın.";
+const paragraph = "Seninle geçen her an, sıradanlığın çok ötesinde bir anlam taşıyor. Bazı duygular anlatılmaz derler ya, işte sen tam olarak onlardansın. İyi ki varsın.";
 
-function updateTimer(){
-  if(remaining < 0){
+// Hedef tarih: 30 Aralık 2025 00:00
+const targetDate = new Date(2025,11,30,0,0,0);
+
+function updateCountdown(){
+  const now = new Date();
+  const diff = targetDate - now;
+  if(diff <=0){
     clearInterval(countdown);
     startPause();
     return;
   }
-  timer.innerText = `00:${String(remaining).padStart(2,'0')}`;
-  remaining--;
+  const d=Math.floor(diff/1000/60/60/24);
+  const h=Math.floor((diff/1000/60/60)%24);
+  const m=Math.floor((diff/1000/60)%60);
+  const s=Math.floor((diff/1000)%60);
+  timer.innerText = `${String(d).padStart(2,'0')}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
-const countdown = setInterval(updateTimer,1000);
-updateTimer();
+const countdown = setInterval(updateCountdown,1000);
+updateCountdown();
 
-/* ========== SCENES ========== */
+/* ====== SCENES ====== */
 function startPause(){
   timerWrap.style.opacity=0;
   setTimeout(()=>{
@@ -201,7 +92,7 @@ function startPause(){
   setTimeout(()=>{
     pause.style.opacity=0;
     showLetter();
-  },4500);
+  },3500);
 }
 
 function showLetter(){
@@ -220,7 +111,7 @@ function typeWriter(){
   }
 }
 
-/* ========== FIREWORKS ========== */
+/* ====== FIREWORKS ====== */
 const canvas = document.getElementById("fireworks");
 const ctx = canvas.getContext("2d");
 
@@ -231,8 +122,7 @@ function resizeCanvas(){
 window.addEventListener('resize',resizeCanvas);
 resizeCanvas();
 
-let rockets=[];
-let particles=[];
+let rockets=[], particles=[];
 
 function launchRocket(){
   rockets.push({
@@ -257,7 +147,6 @@ function explode(x,y){
 
 function animateFireworks(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
   rockets.forEach((r,i)=>{
     r.y += r.vy;
     ctx.fillStyle="#ffffff";
@@ -282,7 +171,7 @@ function animateFireworks(){
   requestAnimationFrame(animateFireworks);
 }
 
-/* ========== RELATION COUNTER ========== */
+/* ====== RELATION COUNTER ====== */
 const startDate = new Date(2024,11,30,0,0,0);
 
 function updateRelation(){
@@ -297,7 +186,7 @@ function updateRelation(){
 setInterval(updateRelation,60000);
 updateRelation();
 
-/* ========== FINISH ========== */
+/* ====== FINISH ====== */
 function finish(){
   note.style.opacity=1;
   for(let i=0;i<16;i++){
@@ -310,7 +199,6 @@ function finish(){
     relation.style.transform="translate(-50%,0)";
   },2000);
 }
-};
 </script>
 </body>
 </html>
