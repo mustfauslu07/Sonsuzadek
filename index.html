@@ -28,12 +28,12 @@ html,body{margin:0;width:100%;height:100%;background:var(--bg);color:#fff;overfl
 <div id="relation"></div>
 
 <script>
-window.onload = function(){
+function initCountdown(){
 
+// ================= TIMER (30 Aralık 2025 00:00) =================
 const targetDate = new Date(2025,11,30,0,0,0).getTime();
 const timer = document.getElementById("timer");
 const timerWrap = document.getElementById("timerWrap");
-const pause = document.getElementById("pause");
 const letter = document.getElementById("letter");
 const textEl = document.getElementById("typeText");
 const note = document.getElementById("note");
@@ -60,9 +60,14 @@ function updateTimer(){
 const timerInterval = setInterval(updateTimer,1000);
 updateTimer();
 
+// ================= SCENES =================
 function showLetter(){
   timerWrap.style.opacity=0;
-  setTimeout(()=>{ timerWrap.style.display="none"; letter.style.opacity=1; typeWriter(); },1000);
+  setTimeout(()=>{
+    timerWrap.style.display="none";
+    letter.style.opacity=1;
+    typeWriter();
+  },1000);
 }
 
 let i=0;
@@ -76,9 +81,10 @@ function typeWriter(){
   }
 }
 
-/* RELATION COUNTER */
+// ================= RELATION COUNTER (30 Aralık 2024) =================
 const startDate = new Date(2024,11,30,0,0,0);
 const relation = document.getElementById("relation");
+
 function updateRelation(){
   const now = new Date();
   let y = now.getFullYear()-startDate.getFullYear();
@@ -86,6 +92,7 @@ function updateRelation(){
   let d = now.getDate()-startDate.getDate();
   if(d<0){ m--; d+=30; }
   if(m<0){ y--; m+=12; }
+
   relation.innerHTML = `${y} yıl ${m} ay ${d} gün<br>Bu sayaç ömür boyu sayacak,<br>ben ise seni sevmeye devam edeceğim.`;
 }
 
@@ -99,8 +106,14 @@ function finish(){
 }
 
 setInterval(updateRelation,60000);
+}
 
-} // window.onload
+// PC ve mobil uyumlu olacak şekilde yükle
+if(document.readyState === "complete" || document.readyState === "interactive"){
+  initCountdown();
+}else{
+  window.addEventListener('DOMContentLoaded',initCountdown);
+}
 </script>
 </body>
 </html>
