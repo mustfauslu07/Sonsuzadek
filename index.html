@@ -67,14 +67,36 @@ html,body{
 }
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:0}}
 
-/* NOTE – TOP */
+/* NOTE */
 #note{
   position:absolute; top:40px; width:100%; text-align:center;
   font-size:.8rem; color:var(--soft);
   opacity:0; transition:opacity 3s ease; z-index:8;
 }
 
-/* RELATION COUNTER */
+/* DATE LIST – 3 COLUMN */
+#dateList{
+  position:absolute;
+  top:70px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:60px;
+  font-size:.75rem;
+  letter-spacing:.18em;
+  color:rgba(255,255,255,0.45);
+  opacity:0;
+  transition:opacity 3s ease;
+  z-index:8;
+}
+.dateCol{
+  text-align:center;
+}
+.dateCol div{
+  margin-top:6px;
+}
+
+/* RELATION */
 #relation{
   position:fixed; left:50%; bottom:30px;
   transform:translate(-50%,20px);
@@ -85,6 +107,7 @@ html,body{
 </style>
 </head>
 <body>
+
 <div id="veil"></div>
 <canvas id="fireworks"></canvas>
 
@@ -99,150 +122,103 @@ html,body{
   <div class="paper"><div id="typeText"></div></div>
 </section>
 
-<div id="note">Bu an saklandı.</div>
+<div id="note">Bu an ömür boyu saklandı.</div>
+
+<div id="dateList">
+  <!-- SOL -->
+  <div class="dateCol">
+    <div>05.10.2024</div>
+    <div>06.12.2024</div>
+    <div>30.12.2024</div>
+  </div>
+
+  <!-- ORTA -->
+  <div class="dateCol">
+    <div>11.01.2025</div>
+    <div>26.01.2025</div>
+    <div>05.02.2025</div>
+  </div>
+
+  <!-- SAĞ -->
+  <div class="dateCol">
+    <div>01.05.2025</div>
+    <div>11.06.2025</div>
+    <div>16.10.2025</div>
+  </div>
+</div>
+
 <div id="relation">Seni çok seven Mustafa</div>
 
 <script>
-window.onload = function(){
+window.onload=function(){
 
-/* ========== TIMER ========== */
-const targetDate = new Date(2025,11,30,0,0,0).getTime();
-const timer = document.getElementById("timer");
-const timerWrap = document.getElementById("timerWrap");
-const pause = document.getElementById("pause");
-const letter = document.getElementById("letter");
-const textEl = document.getElementById("typeText");
-const note = document.getElementById("note");
-const relation = document.getElementById("relation");
+const targetDate=new Date(2025,11,30,0,0,0).getTime();
+const timer=document.getElementById("timer");
+const timerWrap=document.getElementById("timerWrap");
+const pause=document.getElementById("pause");
+const letter=document.getElementById("letter");
+const textEl=document.getElementById("typeText");
+const note=document.getElementById("note");
+const relation=document.getElementById("relation");
+const dateList=document.getElementById("dateList");
 
-const paragraph = "Seninle geçirdiğim bir saniye bile çok değerli iken geçirdiğimiz bu bir sene için çok minnettarım,keza bu yazıyı yazarken bile çok mütehassıs bir ruh halindeyim.Anılarımız gözümün önünden birer birer akıyor.Benim hayatımın her şeyi oldun.Bu bir senede yeri geldi üzüldük yeri geldi sevindik,güldük,eğlendik.Ben senin gibi bir sevgiliye sahip olduğum için gerçekten çok şanslıyım.Benim hayatımın geri kalanından sarfınazar etme sebebim oldun sevgilim.İyi ki doğdun iyi ki varsın iyi ki benim sevgilimsin inşallah nice mutlu senelerin olsun.Yeni yaşın kutlu olsun.";
+const paragraph="Seninle geçirdiğim bir saniye bile çok değerli iken geçirdiğimiz bu bir sene için çok minnettarım,keza bu yazıyı yazarken bile çok mütehassıs bir ruh halindeyim.Anılarımız gözümün önünden birer birer akıyor.Bu bir senede yeri geldi üzüldük yeri geldi sevindik,güldük,eğlendik.Büyük laflara lüzum yok; kalbimdeki yerin müstesna. Seni sevmek, hayatımda kendiliğinden gelişen en güzel şeylerden biri oldu.Benim içimde bir ömür yer tutacaksın birtanem.Senin gibi bir sevgiliye sahip olduğum için gerçekten çok şanslıyım.Hayatımdaki her şeyden sarfınazar etme sebebim oldun sevgilim.İyi ki doğdun iyi ki varsın iyi ki benim sevgilimsin nice mutlu senelerin olsun.Yeni yaşın kutlu olsun.🤍   -Mustafa";
 
 function updateTimer(){
-  const now = new Date().getTime();
-  const diff = targetDate - now;
-
-  if(diff <= 0){
-    clearInterval(timerInterval);
-    startPause();
-    return;
-  }
-
-  const h = Math.floor(diff / (1000*60*60));
-  const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-  const s = Math.floor((diff % (1000*60)) / 1000);
-
-  timer.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const now=Date.now(), diff=targetDate-now;
+  if(diff<=0){clearInterval(timerInterval);startPause();return;}
+  const h=Math.floor(diff/3600000);
+  const m=Math.floor(diff%3600000/60000);
+  const s=Math.floor(diff%60000/1000);
+  timer.innerText=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 }
-const timerInterval = setInterval(updateTimer,1000);
-updateTimer();
+const timerInterval=setInterval(updateTimer,1000); updateTimer();
 
-/* ========== SCENES ========== */
 function startPause(){
-  timerWrap.style.opacity = 0;
-  setTimeout(()=>{
-    timerWrap.style.display = "none";
-    pause.style.opacity = 1; // Zaman bitiyor / An başlıyor göster
-  },1500);
-
-  setTimeout(()=>{
-    pause.style.opacity = 0;
-    showLetter();
-    // Havai fişekleri başlat
-    for(let i=0;i<16;i++){
-      setTimeout(launchRocket, i*450);
-    }
-    animateFireworks();
-  },4500);
+  timerWrap.style.opacity=0;
+  setTimeout(()=>{timerWrap.style.display="none";pause.style.opacity=1;},1500);
+  setTimeout(()=>{pause.style.opacity=0;showLetter();for(let i=0;i<25;i++)setTimeout(launchRocket,i*400);animateFireworks();},4500);
 }
 
-function showLetter(){
-  letter.style.opacity=1;
-  typeWriter();
-}
-
+function showLetter(){letter.style.opacity=1;typeWriter();}
 let i=0;
 function typeWriter(){
-  if(i<paragraph.length){
-    textEl.innerHTML+=paragraph.charAt(i);
-    i++;
-    setTimeout(typeWriter,65);
-  }else{
-    finish();
-  }
+  if(i<paragraph.length){textEl.innerHTML+=paragraph.charAt(i++);setTimeout(typeWriter,65);}
+  else finish();
 }
 
-/* ========== FIREWORKS ========== */
-const canvas = document.getElementById("fireworks");
-const ctx = canvas.getContext("2d");
-
-function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize',resizeCanvas);
-resizeCanvas();
-
-let rockets=[];
-let particles=[];
-
-function launchRocket(){
-  rockets.push({x:Math.random()*canvas.width,y:canvas.height,vy:-(8+Math.random()*2)});
-}
-
+/* FIREWORKS */
+const canvas=document.getElementById("fireworks"),ctx=canvas.getContext("2d");
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;} resize();addEventListener("resize",resize);
+let rockets=[],particles=[];
+function launchRocket(){rockets.push({x:Math.random()*canvas.width,y:canvas.height,vy:-(8+Math.random()*2)});}
 function explode(x,y){
-  const colors=["#ff004c","#ffd700","#ffffff","#9d4edd","#00ffd5"];
-  for(let i=0;i<80;i++){
-    particles.push({
-      x,y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,life:100,
-      color:colors[Math.floor(Math.random()*colors.length)]
-    });
-  }
+  const c=["#ff004c","#ffd700","#fff","#9d4edd","#00ffd5"];
+  for(let i=0;i<100;i++)particles.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:100,color:c[Math.random()*c.length|0]});
 }
-
 function animateFireworks(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  rockets.forEach((r,i)=>{
-    r.y += r.vy;
-    ctx.fillStyle="#ffffff";
-    ctx.fillRect(r.x,r.y,3,3);
-    if(r.y < canvas.height*0.4){
-      explode(r.x,r.y);
-      rockets.splice(i,1);
-    }
-  });
-  particles.forEach((p,i)=>{
-    p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life--;
-    ctx.globalAlpha=p.life/100;
-    ctx.fillStyle=p.color;
-    ctx.fillRect(p.x,p.y,2,2);
-    if(p.life<=0) particles.splice(i,1);
-  });
+  rockets.forEach((r,i)=>{r.y+=r.vy;ctx.fillStyle="#fff";ctx.fillRect(r.x,r.y,3,3);if(r.y<canvas.height*.4){explode(r.x,r.y);rockets.splice(i,1);}});
+  particles.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;ctx.globalAlpha=p.life/100;ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,2,2);if(p.life<=0)particles.splice(i,1);});
   requestAnimationFrame(animateFireworks);
 }
 
-/* ========== RELATION COUNTER ========== */
-const startDate = new Date(2024,11,30,0,0,0);
-
+/* RELATION */
+const startDate=new Date(2024,11,30);
 function updateRelation(){
-  const now = new Date();
-  let y = now.getFullYear()-startDate.getFullYear();
-  let m = now.getMonth()-startDate.getMonth();
-  let d = now.getDate()-startDate.getDate();
-  if(d<0){m--;d+=30;}
-  if(m<0){y--;m+=12;}
-  relation.innerHTML = `${y} yıl ${m} ay ${d} gün<br>Bu sayaç ömür boyu sayacak,<br>ben ise seni sevmeye devam edeceğim.`;
+  const n=new Date();let y=n.getFullYear()-startDate.getFullYear(),m=n.getMonth()-startDate.getMonth(),d=n.getDate()-startDate.getDate();
+  if(d<0){m--;d+=30;} if(m<0){y--;m+=12;}
+  relation.innerHTML=`${y} yıl ${m} ay ${d} gün<br>Bu sayaç ömür boyu sayacak,<br>ben ise seni sevmeye devam edeceğim.`;
 }
-setInterval(updateRelation,60000);
-updateRelation();
+setInterval(updateRelation,60000); updateRelation();
 
-/* ========== FINISH ========== */
+/* FINISH */
 function finish(){
   note.style.opacity=1;
-  setTimeout(()=>{
-    relation.style.opacity=1;
-    relation.style.transform="translate(-50%,0)";
-  },2000);
+  dateList.style.opacity=1;
+  setTimeout(()=>{relation.style.opacity=1;relation.style.transform="translate(-50%,0)";},2000);
 }
 };
 </script>
 </body>
 </html>
-
-
